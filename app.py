@@ -1,16 +1,20 @@
 from flask import Flask, redirect, url_for, request, render_template, session
 import requests, os, uuid, json
 from dotenv import load_dotenv
+
 load_dotenv()
 
-
 app = Flask(__name__)
+
 @app.route('/', methods=['GET'])
+def home():
+    return render_template('home.html')
+
+@app.route('/translate', methods=['GET'])
 def index():
     return render_template('index.html')
 
-
-@app.route('/', methods=['POST'])
+@app.route('/translate', methods=['POST'])
 def index_post():
     # Read the values from the form
     original_text = request.form['text']
@@ -19,7 +23,7 @@ def index_post():
     # Load the values from .env
     key = os.environ['KEY']
     endpoint = os.environ['ENDPOINT']
-    location = os.environ['LOCATION'] 
+    location = os.environ['LOCATION']
 
     # Indicate that we want to translate and the API version (3.0) and the target language
     path = '/translate?api-version=3.0'
@@ -46,11 +50,11 @@ def index_post():
     # Retrieve the translation
     translated_text = translator_response[0]['translations'][0]['text']
 
-    # Call render template, passing the translated text,
-    # original text, and target language to the template
-    return render_template(
-        'results.html',
-        translated_text=translated_text,
-        original_text=original_text,
-        target_language=target_language
-    )
+    return render_template('results.html', original_text=original_text, translated_text=translated_text)
+
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
